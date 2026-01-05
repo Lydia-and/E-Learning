@@ -1,0 +1,58 @@
+<section id="teacher-section" class="section">
+  <h3>Manage Teachers</h3>
+  <form *ngIf="isTeacher && !isEditing" id="teacher-form">
+    <input type="text" [(ngModel)]="firstname" name="teacherFirstName" placeholder="First Name" required>
+    <input type="text" [(ngModel)]="lastname" name="teacherLastName" placeholder="Last Name" required>
+    <input type="email" [(ngModel)]="email" name="email" placeholder="Email" required>
+    <input type="text" [(ngModel)]="number" name="number" placeholder="Phone Number" required>
+    <!-- Add Teacher Button -->
+    <button type="button" (click)="AddTeacher()" *ngIf="selectedTeacherId === null">Add Teacher</button>
+  </form>
+
+  <form  *ngIf="isTeacher && isEditing" (ngSubmit)="isEditing ? updateTeacher() : AddTeacher()" [formGroup]="teacherForm">
+    <input type="text" formControlName="firstname" placeholder="First Name" />
+    <div *ngIf="teacherForm.get('firstname')?.invalid && teacherForm.get('firstname')?.touched">First name is required</div>
+
+    <input type="text" formControlName="lastname" placeholder="Last Name" />
+    <div *ngIf="teacherForm.get('lastname')?.invalid && teacherForm.get('lastname')?.touched">Last name is required</div>
+
+    <input type="email" formControlName="email" placeholder="Email" />
+    <div *ngIf="teacherForm.get('email')?.invalid && teacherForm.get('email')?.touched">Valid email is required</div>
+
+    <input type="text" formControlName="telephone" placeholder="Telephone" />
+    <div *ngIf="teacherForm.get('number')?.invalid && teacherForm.get('number')?.touched">Telephone is required</div>
+
+    <button type="submit">{{ isEditing ? 'Update Teacher' : 'Add Teacher' }}</button>
+    <button type="button" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+  </form>
+  <input type="text" [(ngModel)]="searchLastName" name="searchLastName" (ngModelChange)="Search()" placeholder="Search teacher by last name" />
+
+
+  <table id="teacher-list">
+    <thead>
+    <tr>
+      <th>ID</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Email</th>
+      <th>Phone Number</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+    <tbody>
+    <tr *ngFor="let teacher of teachers | paginate: { itemsPerPage: 5, currentPage: p }">
+      <td>{{ teacher.id }}</td>
+      <td>{{ teacher.firstname}}</td>
+      <td>{{ teacher.lastname }}</td>
+      <td>{{ teacher.email }}</td>
+      <td>{{ teacher.number }}</td>
+      <td>
+        <button id="edit" (click)="editTeacher(teacher)">Edit</button>
+        <button id="delete" (click)="deleteTeacher(teacher.id)">Delete</button>
+      </td>
+    </tr>
+    </tbody>
+  </table>
+
+  <pagination-controls (pageChange)="p = $event"></pagination-controls>
+</section>

@@ -1,0 +1,45 @@
+<section id="class-section" class="section <!--hidden-->">
+  <h3>Manage classes</h3>
+  <form *ngIf="isTeacher && !isEditing" id="class-form">
+    <input type="text" id="class-name" [(ngModel)]="Name" name="name" placeholder="Class Name" required>
+    <input type="number" id="class-credit" [(ngModel)]="coefficient" name="coefficient" placeholder="Class Credit" required>
+    <button type="button" (click)="AddClass()">Add Class</button>
+  </form>
+  <input type="text" id="class-search" name="className" [(ngModel)]="search" (ngModelChange)="Search()" placeholder="Search class by name" />
+
+  <form  *ngIf="isTeacher && isEditing" (ngSubmit)="isEditing ? updateClass() : AddClass()" [formGroup]="classForm">
+    <input type="text" formControlName="classname" placeholder="Class Name" />
+    <div *ngIf="classForm.get('classname')?.invalid && classForm.get('classname')?.touched">Class name is required</div>
+
+    <input type="text" formControlName="credit" placeholder="Class credit" />
+    <div *ngIf="classForm.get('credit')?.invalid && classForm.get('credit')?.touched">Class credit is required</div>
+
+    <button type="submit">{{ isEditing ? 'Update Class' : 'Add Class' }}</button>
+    <button type="button" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+  </form>
+
+  <table id="subject-list">
+    <thead>
+    <tr>
+      <th>Class ID</th>
+      <th>Class Name</th>
+      <th>Class Credit</th>
+      <th>Actions</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let subject of subjects | paginate: {itemsPerPage:5, currentPage:p};">
+      <td>{{subject.id}}</td>
+      <td>{{subject.name}}</td>
+      <td>{{subject.coefficient}}</td>
+      <td *ngIf="isTeacher">
+        <button id="edit" (click)="editClass(subject)">Edit</button>
+        <button id="delete" (click)="deleteClass(subject.id)">Delete</button>
+      </td>
+    </tr>
+    </tbody>
+    <pagination-controls (pageChange) ="p = $event"></pagination-controls>
+  </table>
+  <ul id="class-list"></ul>
+</section>

@@ -1,0 +1,69 @@
+<body>
+  <div class="container">
+  <!--sidebar-->
+
+    <div class="sidebar">
+      <h2>UMMTO dashboard</h2>
+      <ul>
+        <li [class.active]="activeSection === 'dashboard'" (click)="showSection('dashboard')">Dashboard</li>
+        <li [class.active]="activeSection === 'subjects'" (click)="showSection('subjects')">Class</li>
+        <li [class.active]="activeSection === 'students'" (click)="showSection('students')">View Student</li>
+        <li [class.active]="activeSection === 'teachers'" (click)="showSection('teachers')">Teachers</li>
+        <li *ngIf="!isTeacher" [class.active]="activeSection === 'enroll'" (click)="showSection('enroll')">Enroll</li>
+        <li [class.active]="activeSection === 'enrollments'" (click)="showSection('enrollments')">View enrollments</li>
+      </ul>
+    </div>
+
+    <!--Main content-->
+    <main class="main-content">
+      <header>
+        <h2 id="section-title"> Dashboard</h2>
+        <span>User information</span>
+      </header>
+
+      <!--Dashboard section -->
+      <div id="dashboard-section">
+        <div class="cards">
+          <div class="card">
+            <h3>Total classes</h3>
+            <p><span id="total-class"></span></p>
+            <small>View classes</small>
+          </div>
+
+          <div class="card">
+            <h3>Total students</h3>
+            <p><span id="total-students"></span></p>
+            <small>View students</small>
+          </div>
+          <div class="card">
+            <h3>Total teachers</h3>
+            <p><span id="total-teachers"></span></p>
+            <small>View teachers</small>
+          </div>
+          <div class="card">
+            <h3>Total enrollments</h3>
+            <p><span id="total-enrollments"></span></p>
+            <small>View enrollments</small>
+          </div>
+
+          <div class="chart-container">
+            <h3>Daily activities</h3>
+            <canvas id="dashboard-chart" height="150"></canvas>
+          </div>
+        </div>
+      </div>
+
+      <!--class section-->
+      <app-subject *ngIf="activeSection === 'subjects'" [isTeacher]="isTeacher"></app-subject>
+
+      <!--student section-->
+      <app-student *ngIf="activeSection === 'students'" [isTeacher]="isTeacher"></app-student>
+
+      <!--Enrollment section-->
+      <app-teacher *ngIf="activeSection === 'teachers'" [isTeacher]="isTeacher"></app-teacher>
+
+      <!--teacher section-->
+      <app-enrollment *ngIf="activeSection === 'enrollments' || activeSection === 'enroll'" [isTeacher]="isTeacher"  [isStudent]="isStudent"></app-enrollment>
+    </main>
+  </div>
+</body>
