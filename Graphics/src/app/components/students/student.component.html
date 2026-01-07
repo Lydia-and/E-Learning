@@ -1,0 +1,58 @@
+<head><link rel="stylesheet" href="./student.component.css" /></head>
+<section id="student-section" class="section <!--hidden-->">
+  <h3>Manage students</h3>
+  <form *ngIf="isTeacher && !isEditing" id="student-form">
+    <input type="text" [(ngModel)]="newStudent.firstname" name="newStudent.firstname" placeholder="Student FirstName" required>
+    <input type="text" [(ngModel)]="newStudent.lastname" name="newStudent.lastname" placeholder="Student LastName" required>
+    <input type="text" [(ngModel)]="newStudent.email" name="newStudent.email" placeholder="Student Email" required>
+    <input type="text" [(ngModel)]="newStudent.telephone" name="newStudent.telephone" placeholder="Student Number" required>
+    <!--<input type="text" id="student-enrollment" placeholder="Enrollment" required>-->
+    <button type="button" (click)="addStudent()">Add Student</button>
+  </form>
+  <input type="text" id="student-search" name="lastName" [(ngModel)]="lastName" (ngModelChange)="Search()" placeholder="Search student by lastname" />
+
+  <form  *ngIf="isTeacher && isEditing" (ngSubmit)="isEditing ? updateStudent() : addStudent()" [formGroup]="studentForm">
+    <input type="text" formControlName="firstname" placeholder="Student FirstName" />
+    <div *ngIf="studentForm.get('firstname')?.invalid && studentForm.get('firstname')?.touched">First name is required</div>
+
+    <input type="text" formControlName="lastname" placeholder="Student LastName" />
+    <div *ngIf="studentForm.get('lastname')?.invalid && studentForm.get('lastname')?.touched">Last name is required</div>
+
+    <input type="email" formControlName="email" placeholder="Student Email" />
+    <div *ngIf="studentForm.get('email')?.invalid && studentForm.get('email')?.touched">Valid email is required</div>
+
+    <input type="text" formControlName="telephone" placeholder="Student Telephone" />
+    <div *ngIf="studentForm.get('telephone')?.invalid && studentForm.get('telephone')?.touched">Telephone is required</div>
+
+    <button type="submit">{{ isEditing ? 'Update Student' : 'Add Student' }}</button>
+    <button type="button" *ngIf="isEditing" (click)="cancelEdit()">Cancel</button>
+  </form>
+
+  <table id="student-list">
+    <thead>
+    <tr>
+      <th>Student ID</th>
+      <th>First Name</th>
+      <th>Last Name</th>
+      <th>Student Email</th>
+      <th>Student Number</th>
+      <th>Options</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let student of students | paginate: {itemsPerPage:5, currentPage:p};">
+      <td>{{student.id}}</td>
+      <td>{{student.firstname}}</td>
+      <td>{{student.lastname}}</td>
+      <td>{{student.email}}</td>
+      <td>{{student.telephone}}</td>
+      <td *ngIf="isTeacher">
+        <button id="edit" (click)="editStudent(student)">Edit</button>
+        <button id="delete" (click)="deleteStudent(student.id)">Delete</button>
+      </td>
+    </tr>
+    </tbody>
+    <pagination-controls (pageChange) ="p = $event"></pagination-controls>
+  </table>
+</section>

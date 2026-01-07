@@ -1,0 +1,16 @@
+<section class="contact-section">
+  <div class="container">
+    <h2>Contact Us</h2>
+    <form (ngSubmit)="onSubmit()">
+      <input type="text" (ngModel)="formData.name" name="name" placeholder="Your Name" required>
+      
+      <input type="email" (ngModel)="formData.email" name="email" placeholder="Your Email" required>
+      
+      <textarea (ngModel)="formData.message" name="message" placeholder="Your Message" rows="5" required></textarea>
+      
+      <button type="submit" class="hero-btn red-btn">
+        Send Message
+      </button>
+    </form>
+  </div>
+</section>

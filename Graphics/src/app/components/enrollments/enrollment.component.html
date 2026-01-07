@@ -1,0 +1,42 @@
+<head><link rel="stylesheet" href="./enrollment.component.css" /></head>
+<section id="enrollment-section" class="section <!--hidden-->">
+  <h3>Enroll</h3>
+  <form *ngIf="isStudent" id="enrollment-form">
+    <input type="text" name="subjectId" [(ngModel)]="subjectId" placeholder="Enter Subject ID" required />
+    <button type="button" (click)="SearchSubject()">Search Subject</button>
+
+    <button type="submit" (click)="Enroll()">Add Enrollment</button>
+  </form>
+  <!--<form *ngIf="isStudent" id="enrollment-form">
+    <input type="text" id="student-id" placeholder="Student ID" required>
+    <input type="text" id="student-search" name="studentId" [(ngModel)]="studentId" (ngModelChange)="SearchStudent()" placeholder="Search student by id" />
+    <input type="text" id="subject-name" placeholder="Subject Name" required>
+    <input type="text" id="subject-search" name="subjectId" [(ngModel)]="subjectId" (ngModelChange)="SearchSubject()" placeholder="Search subject by id" />
+    <button type="submit" (click)="Enroll()" >Add Enrollment</button>
+  </form>-->
+  <input type="text" id="enrollment-search" name="ID" [(ngModel)]="ID" (ngModelChange)="SearchEnrollment()" placeholder="Search enrollment by id" />
+  <table id="enrollment-list">
+    <thead>
+    <tr>
+      <th>Enrollment ID</th>
+      <th>Student ID</th>
+      <th>Student First Name</th>
+      <th>Student Last Name</th>
+      <th>Subject ID</th>
+      <th>Subject Name</th>
+    </tr>
+    </thead>
+
+    <tbody>
+    <tr *ngFor="let enrollment of enrollments | paginate: {itemsPerPage:5, currentPage:p};">
+      <td>{{enrollment.id}}</td>
+      <td>{{enrollment.studentId}}</td>
+      <td>{{enrollment.studentFirstName}}</td>
+      <td>{{enrollment.studentLastName}}</td>
+      <td>{{enrollment.subjectId}}</td>
+      <td>{{enrollment.subjectName}}</td>
+    </tr>
+    </tbody>
+    <pagination-controls (pageChange) ="p = $event"></pagination-controls>
+  </table>
+</section>
