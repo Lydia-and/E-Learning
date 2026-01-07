@@ -30,24 +30,27 @@ public class WebSecurityConfig {
     private final JwtAuthEntryPoint unauthorizedHandler;
 
     public WebSecurityConfig(UserDetailsServiceImpl userDetailsService,
-                             JwtAuthEntryPoint unauthorizedHandler) {
+            JwtAuthEntryPoint unauthorizedHandler) {
         this.userDetailsService = userDetailsService;
         this.unauthorizedHandler = unauthorizedHandler;
     }
 
     @Bean
-    public JwtAuthTokenFilter authenticationJwtTokenFilter() {return new JwtAuthTokenFilter();}
+    public JwtAuthTokenFilter authenticationJwtTokenFilter() {
+        return new JwtAuthTokenFilter();
+    }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {return new BCryptPasswordEncoder();}
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
     @Bean
-    DaoAuthenticationProvider authProvider(){
+    DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -68,26 +71,42 @@ public class WebSecurityConfig {
                 .cors(Customizer.withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/addStudent.html").permitAll()
-
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/students/**").permitAll()
-                        .requestMatchers("/subjects/**").permitAll()
-                        .requestMatchers("/teachers/**").permitAll()
-                        .requestMatchers("/enrollments/**").permitAll()
-                        .requestMatchers("/error").permitAll()
-
-                        .anyRequest().authenticated()
+                .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
+                .requestMatchers("/").permitAll()
+                .requestMatchers("/addStudent.html").permitAll()
+                .requestMatchers("/auth/**").permitAll()
+                .requestMatchers("/students/**").permitAll()
+                .requestMatchers("/subjects/**").permitAll()
+                .requestMatchers("/teachers/**").permitAll()
+                .requestMatchers("/enrollments/**").permitAll()
+                .requestMatchers("/error").permitAll()
+                .anyRequest().authenticated()
                 )
                 .exceptionHandling(unauthorized -> unauthorized
-                        .authenticationEntryPoint(unauthorizedHandler)
+                .authenticationEntryPoint(unauthorizedHandler)
                 )
                 .sessionManagement(session -> session
-                        .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
+                .sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 );
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
+    @Bean
+    public SecurityFilterChain filterChain(HttpSecurity http) throws Exception {
+        http
+                .csrf(null).disable()
+                .authorizeHttpRequests(auth -> auth
+                .requestMatchers("/admin/**").hasRole("ADMIN")
+                .requestMatchers("/teacher/**").hasRole("TEACHER")
+                .requestMatchers("/student/**").hasRole("STUDENT")
+                .anyRequest().authenticated()
+                )
+                .formLogin().permitAll()
+                .and()
+                .logout().permitAll();
+
+        return http.build();
+    }
+
 }
