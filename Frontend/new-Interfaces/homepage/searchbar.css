@@ -1,0 +1,39 @@
+#search-bar {
+    display: flex;
+    background-color: rgba(4, 9, 30, 0.492);
+    border-radius: 40px;
+    margin: 50px auto;
+    width: 400px;
+    box-shadow: 3px 3px 10px -3px grey;
+    overflow: hidden;
+}
+
+input {
+all: unset;
+flex-grow: 1;
+padding: 10px 20px;
+color: white;
+}
+
+input::placeholder{
+    color: #86132e;
+}
+
+#search {
+    border: none;
+    margin: 5px;
+    padding: 5px;
+    border-radius: 40px;
+    background-color: rgb(205, 205, 255);
+    width: 30px;
+    cursor: pointer;
+}
+
+#search img {
+    max-width: 18px;
+    max-height: 18px;
+}
+
+#search:hover {
+    background-color: rgb(179, 179, 255);
+}

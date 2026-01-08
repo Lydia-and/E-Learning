@@ -1,0 +1,60 @@
+<!DOCTYPE html>
+<html lang="fr">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="dashboard.css">
+    <title>Dashboard</title>
+</head>
+
+<body>
+    <!--Affiche la page complète-->
+    <section class="container">
+        <h2>Dashboard</h2>
+        <div class="up">
+            <div id="searchbar"></div>
+
+            <!--Bouton à côté de la barre de recherche pour ajouter un cours-->
+            <button id="add-course">Add Course</button>
+            <!--div dans laquelle s'afficherons les cours-->
+        </div>
+        <div class="course-displayer">
+            <!--Les cours seront présentés sous forme de carte dont ceci est le container-->
+            <div class="course-container">
+                <!--Ici est la carte-->
+                <div class="course"></div>
+                <!--Boutton à cliquer pour supprimer le cours-->
+                <button class="delete">Delete</button>
+            </div>
+            <div class="course-container">
+                <!--Ici est la carte-->
+                <div class="course"></div>
+                <!--Boutton à cliquer pour supprimer le cours-->
+                <button class="delete">Delete</button>
+            </div>
+            <div class="course-container">
+                <!--Ici est la carte-->
+                <div class="course"></div>
+                <!--Boutton à cliquer pour supprimer le cours-->
+                <button class="delete">Delete</button>
+            </div>
+            <div class="course-container">
+                <!--Ici est la carte-->
+                <div class="course"></div>
+                <!--Boutton à cliquer pour supprimer le cours-->
+                <button class="delete">Delete</button>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        fetch('searchbar.html')
+            .then(response => response.text())
+            .then(data => {
+                document.getElementById('searchbar').innerHTML = data;
+            });
+    </script>
+</body>
+
+</html>

@@ -1,0 +1,159 @@
+.header {
+  min-height: 100vh;
+  width: 100%;
+  background-image: linear-gradient(rgba(4, 9, 30, 0.7), rgba(4, 9, 30, 0.7)), url('/assets/images/banner.jpg');
+  background-position: center;
+  background-size: cover;
+  position: relative;
+}
+
+nav {
+  display: flex;
+  padding: 2% 6%;
+  justify-content: space-between;
+  align-items: center;
+}
+
+.logo {
+  font-size: 28px;
+  font-weight: 700;
+  color: #fff;
+  text-decoration: none;
+}
+
+.logo span {
+  color: #ff416c;
+}
+
+.nav-links ul li {
+  list-style: none;
+  display: inline-block;
+  padding: 8px 12px;
+}
+
+.nav-links ul li a {
+  color: #fff;
+  text-decoration: none;
+  font-size: 14px;
+}
+
+.btn-signup {
+  background: #ff416c;
+  padding: 10px 20px !important;
+  border-radius: 5px;
+}
+
+.text-box {
+  width: 90%;
+  color: #fff;
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  transform: translate(-50%, -50%);
+  text-align: center;
+}
+
+.text-box h1 {
+  font-size: 62px;
+}
+
+.hero-btn {
+  display: inline-block;
+  text-decoration: none;
+  color: #fff;
+  border: 1px solid #fff;
+  padding: 12px 34px;
+  font-size: 13px;
+  background: transparent;
+  cursor: pointer;
+  transition: 0.4s;
+}
+
+.hero-btn:hover {
+  background: #ff416c;
+  border: 1px solid #ff416c;
+}
+
+.container {
+  width: 80%;
+  margin: auto;
+  padding: 60px 0;
+}
+
+.row {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+}
+
+.col {
+  flex: 1;
+}
+
+.side-img {
+  width: 100%;
+  border-radius: 10px;
+  box-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+}
+
+h2 {
+  font-size: 36px;
+  margin-bottom: 20px;
+  color: #333;
+}
+
+p {
+  color: #777;
+  line-height: 1.6;
+}
+
+.contact-section {
+    background-color: #1a1a1a; 
+    color: #ffffff;
+    padding: 50px 0;
+    text-align: center;
+    border-top: 4px solid #2563eb; 
+}
+
+.footer {
+    max-width: 1200px;
+    margin: 0 auto;
+    padding: 0 20px;
+}
+
+.contact-section h2 {
+    font-size: 24px;
+    margin-bottom: 30px;
+    font-weight: 600;
+    letter-spacing: 1px;
+    text-transform: uppercase;
+}
+
+.contact-section a {
+    color: #cbd5e1; 
+    text-decoration: none;
+    font-size: 16px;
+    display: inline-block;
+    margin: 8px 0;
+    transition: all 0.3s ease;
+}
+
+.contact-section a:hover {
+    color: #2563eb;
+    transform: translateX(5px);
+}
+
+.contact-section a::before {
+    content: '→';
+    margin-right: 10px;
+    color: #2563eb;
+    font-weight: bold;
+}
+
+.contact-section a[href^="mailto"], 
+.contact-section a[href^="tel"] {
+    font-family: monospace; 
+    background: rgba(255, 255, 255, 0.05);
+    padding: 5px 15px;
+    border-radius: 20px;
+}

@@ -1,0 +1,61 @@
+.course-card {
+    display: block;
+    text-decoration: none;
+    background: #ffffff;
+    height: 260px;
+    width: 350px;
+    padding: 25px;
+    border-radius: 15px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+    border-left: 6px solid #2563eb;
+    transition: all 0.3s ease;
+}
+
+.course-card:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 15px 35px rgba(0, 0, 0, 0.2);
+    cursor: pointer;
+}
+
+.name {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #1f2937;
+    margin-bottom: 10px;
+}
+
+hr {
+    border: 0;
+    height: 1px;
+    background: #e5e7eb;
+    margin: 15px 0;
+}
+
+.description {
+    font-size: 0.95rem;
+    color: #4b5563;
+    line-height: 1.5;
+}
+
+.teacher-name {
+    margin-top: 15px;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: #2563eb;
+}
+
+.coefficient {
+    display: inline-block;
+    margin-top: 10px;
+    background-color: #eff6ff;
+    color: #2563eb;
+    padding: 4px 12px;
+    border-radius: 20px;
+    font-size: 0.85rem;
+    font-weight: 700;
+}
+
+.coefficient::before {
+    content: 'Coeff: ';
+    font-weight: 400;
+}

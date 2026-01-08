@@ -1,0 +1,40 @@
+/* Import de la police */
+@import url('https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap');
+
+:root {
+  --primary: #4e54c8;
+  --secondary: #ff416c;
+  --dark: #1a1a1a;
+  --light: #ffffff;
+  --gray: #f4f7f6;
+}
+
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+  font-family: 'Poppins', sans-serif;
+}
+
+body {
+  line-height: 1.6;
+  background-color: var(--gray);
+}
+
+.container {
+  /* width: 85%; */
+  margin: auto;
+  max-width: 1200px;
+}
+
+/* Bouton réutilisable partout */
+.hero-btn {
+  display: inline-block;
+  padding: 12px 30px;
+  border-radius: 5px;
+  text-decoration: none;
+  font-weight: 600;
+  transition: 0.3s;
+  cursor: pointer;
+  border: none;
+}

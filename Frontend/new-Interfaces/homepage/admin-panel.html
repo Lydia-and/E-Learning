@@ -1,0 +1,118 @@
+<!DOCTYPE html>
+<html lang="fr">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Console Admin - UMMTO</title>
+    <link rel="stylesheet" href="style.css">
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@300;400;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
+</head>
+<body>
+
+    <div class="main-wrapper">
+        <div class="admin-container">
+            
+            <div class="admin-header">
+                <h2><i class="fa-solid fa-users-gear"></i> Gestion des Utilisateurs</h2>
+                <button class="add-user-btn"><i class="fa-solid fa-plus"></i> Nouveau</button>
+            </div>
+
+            <div class="filter-bar">
+                <span class="filter-label">Afficher :</span>
+                
+                <div class="radio-group">
+                    <label class="radio-option">
+                        <input type="radio" name="roleFilter" value="all" checked onchange="filterUsers('all')">
+                        <span class="radio-custom"></span>
+                        Tous
+                    </label>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="roleFilter" value="student" onchange="filterUsers('student')">
+                        <span class="radio-custom"></span>
+                        Élèves
+                    </label>
+                    
+                    <label class="radio-option">
+                        <input type="radio" name="roleFilter" value="teacher" onchange="filterUsers('teacher')">
+                        <span class="radio-custom"></span>
+                        Professeurs
+                    </label>
+                </div>
+            </div>
+
+            <div class="table-responsive">
+                <table class="user-table">
+                    <thead>
+                        <tr>
+                            <th>ID</th>
+                            <th>Utilisateur</th>
+                            <th>Email</th>
+                            <th>Rôle</th>
+                            <th>Actions</th>
+                        </tr>
+                    </thead>
+                    <tbody id="userList">
+                        <tr data-role="teacher">
+                            <td>#001</td>
+                            <td class="user-info">
+                                <div class="avatar">B</div>
+                                <span>Dr. Benali</span>
+                            </td>
+                            <td>benali@ummto.dz</td>
+                            <td><span class="badge badge-teacher">Professeur</span></td>
+                            <td>
+                                <button class="action-btn edit-btn" title="Modifier"><i class="fa-solid fa-pen"></i></button>
+                                <button class="action-btn delete-btn" title="Supprimer"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+
+                        <tr data-role="student">
+                            <td>#002</td>
+                            <td class="user-info">
+                                <div class="avatar student-avatar">A</div>
+                                <span>Amina Khelil</span>
+                            </td>
+                            <td>amina.k@ummto.dz</td>
+                            <td><span class="badge badge-student">Élève</span></td>
+                            <td>
+                                <button class="action-btn edit-btn"><i class="fa-solid fa-pen"></i></button>
+                                <button class="action-btn delete-btn"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+
+                        <tr data-role="student">
+                            <td>#003</td>
+                            <td class="user-info">
+                                <div class="avatar student-avatar">S</div>
+                                <span>Samir Ouali</span>
+                            </td>
+                            <td>samir.o@ummto.dz</td>
+                            <td><span class="badge badge-student">Élève</span></td>
+                            <td>
+                                <button class="action-btn edit-btn"><i class="fa-solid fa-pen"></i></button>
+                                <button class="action-btn delete-btn"><i class="fa-solid fa-trash"></i></button>
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+        </div>
+    </div>
+
+    <script>
+        function filterUsers(role) {
+            const rows = document.querySelectorAll('#userList tr');
+            rows.forEach(row => {
+                if (role === 'all' || row.getAttribute('data-role') === role) {
+                    row.style.display = '';
+                } else {
+                    row.style.display = 'none';
+                }
+            });
+        }
+    </script>
+</body>
+</html>

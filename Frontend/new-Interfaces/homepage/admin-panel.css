@@ -1,0 +1,159 @@
+/* --- Base --- */
+* {
+    margin: 0;
+    padding: 0;
+    box-sizing: border-box;
+    font-family: 'Poppins', sans-serif;
+}
+
+body {
+    background-color: #f3f4f6; /* Gris très clair */
+    color: #333;
+}
+
+.main-wrapper {
+    display: flex;
+    justify-content: center;
+    padding: 50px 20px;
+}
+
+/* --- Container Admin --- */
+.admin-container {
+    width: 100%;
+    max-width: 1000px;
+    background: white;
+    padding: 30px;
+    border-radius: 15px;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.05);
+}
+
+/* --- Header --- */
+.admin-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 30px;
+    border-bottom: 2px solid #f0f0f0;
+    padding-bottom: 15px;
+}
+
+.admin-header h2 {
+    color: #1f2937;
+    font-size: 1.5rem;
+}
+
+.add-user-btn {
+    background-color: #2563eb;
+    color: white;
+    border: none;
+    padding: 10px 20px;
+    border-radius: 8px;
+    cursor: pointer;
+    font-weight: 600;
+    transition: background 0.3s;
+}
+
+.add-user-btn:hover { background-color: #1d4ed8; }
+
+/* --- Filtres (Radio Buttons) --- */
+.filter-bar {
+    background: #f9fafb;
+    padding: 15px;
+    border-radius: 10px;
+    margin-bottom: 25px;
+    display: flex;
+    align-items: center;
+    gap: 20px;
+}
+
+.filter-label { font-weight: 600; color: #555; }
+
+.radio-group { display: flex; gap: 20px; }
+
+.radio-option {
+    display: flex;
+    align-items: center;
+    cursor: pointer;
+    font-size: 0.95rem;
+}
+
+.radio-option input { margin-right: 8px; accent-color: #2563eb; cursor: pointer; }
+
+/* --- Tableau --- */
+.table-responsive { overflow-x: auto; }
+
+.user-table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 600px;
+}
+
+.user-table th {
+    text-align: left;
+    padding: 15px;
+    background-color: #f1f5f9;
+    color: #4b5563;
+    font-weight: 600;
+    border-radius: 5px;
+}
+
+.user-table td {
+    padding: 15px;
+    border-bottom: 1px solid #f0f0f0;
+    vertical-align: middle;
+}
+
+.user-table tr:hover { background-color: #fafafa; }
+
+/* --- Infos Utilisateur & Avatar --- */
+.user-info { display: flex; align-items: center; gap: 10px; font-weight: 500; }
+
+.avatar {
+    width: 35px;
+    height: 35px;
+    background-color: #dbeafe; /* Bleu clair */
+    color: #2563eb;
+    border-radius: 50%;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    font-weight: bold;
+    font-size: 14px;
+}
+
+.student-avatar { background-color: #d1fae5; color: #059669; } /* Vert clair */
+
+/* --- Badges Rôles --- */
+.badge {
+    padding: 5px 12px;
+    border-radius: 20px;
+    font-size: 0.8rem;
+    font-weight: 600;
+}
+
+.badge-teacher {
+    background-color: #e0e7ff;
+    color: #4338ca; /* Indigo */
+}
+
+.badge-student {
+    background-color: #d1fae5;
+    color: #059669; /* Vert Émeraude */
+}
+
+/* --- Boutons d'Action --- */
+.action-btn {
+    border: none;
+    background: transparent;
+    cursor: pointer;
+    padding: 8px;
+    border-radius: 5px;
+    transition: 0.2s;
+    font-size: 1rem;
+}
+
+.edit-btn { color: #2563eb; }
+.edit-btn:hover { background-color: #eff6ff; }
+
+.delete-btn { color: #dc2626; }
+.delete-btn:hover { background-color: #fef2f2; }
