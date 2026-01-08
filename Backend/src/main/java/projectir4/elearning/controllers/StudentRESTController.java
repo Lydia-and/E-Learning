@@ -1,5 +1,8 @@
 package projectir4.elearning.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import projectir4.elearning.dto.EnrollmentDTO;
 import projectir4.elearning.dto.StudentDTO;
 import projectir4.elearning.mapper.EnrollmentMapper;
@@ -28,7 +31,6 @@ public class StudentRESTController {
 
     private final StudentRepository studentRepository;
     private final EnrollmentRepository enrollmentRepository;
-    private final SubjectRepository subjectRepository;
 
     private final StudentMapper studentMapper;
     private final EnrollmentMapper enrollmentMapper;
@@ -36,17 +38,16 @@ public class StudentRESTController {
     @Autowired
     public StudentRESTController(StudentRepository studentRepository,
                                  EnrollmentRepository enrollmentRepository,
-                                 SubjectRepository subjectRepository,
                                  StudentMapper studentMapper,
                                  EnrollmentMapper enrollmentMapper) {
         this.studentRepository = studentRepository;
         this.enrollmentRepository = enrollmentRepository;
-        this.subjectRepository = subjectRepository;
 
         this.studentMapper = studentMapper;
         this.enrollmentMapper = enrollmentMapper;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(method = RequestMethod.GET)
     public ResponseEntity<List<StudentDTO>> findAllStudents(){
         List<StudentDTO> dtos = studentRepository.findAll().stream()
@@ -55,6 +56,7 @@ public class StudentRESTController {
         return new ResponseEntity<>(dtos, HttpStatus.OK);
     }
 
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @RequestMapping(value="/{id}", method = RequestMethod.GET)
     public ResponseEntity<StudentDTO> findStudentById(@PathVariable Long id){
         return studentRepository.findById(id)
@@ -63,37 +65,28 @@ public class StudentRESTController {
 
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    //@PostMapping
-    public ResponseEntity<StudentDTO> addStudent(@RequestBody StudentDTO dto) {
-        Student student = studentMapper.toEntity(dto);
+    @GetMapping("/me/enrollments")
+    @PreAuthorize("hasRole('STUDENT')")
+    public List<EnrollmentDTO> getMyEnrollments(
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        //so that we can use its id
-        Student savedStudent = studentRepository.save(student);
+        Student student = studentRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        List<Enrollment> enrollments = new ArrayList<>();
-
-        if (dto.getEnrollments() != null) {
-            for (EnrollmentDTO eDTO : dto.getEnrollments()) {
-                Subject subject = subjectRepository.findById(eDTO.getSubjectId())
-                        .orElseThrow(() -> new RuntimeException("Subject not found"));
-                Enrollment enrollment = enrollmentMapper.toEntity(eDTO, savedStudent, subject);
-                enrollments.add(enrollment);
-            }
-        }
-
-        savedStudent.setEnrollments(enrollments);
-        enrollmentRepository.saveAll(enrollments);
-
-        return new ResponseEntity<>(studentMapper.toDTO(savedStudent), HttpStatus.CREATED);
+        return enrollmentRepository.findByStudent(student)
+                .stream()
+                .map(enrollmentMapper::toDTO)
+                .toList();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(method = RequestMethod.DELETE)
     public ResponseEntity<Void> deleteAllStudents(){
         studentRepository.deleteAll();
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE)
     public ResponseEntity<Student> deleteStudent(@PathVariable("id") long id) {
         Optional<Student> student = studentRepository.findById(id);
@@ -105,45 +98,7 @@ public class StudentRESTController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //supprime
-    @RequestMapping(value ="/{id}", method = RequestMethod.PUT)
-    public ResponseEntity<StudentDTO> updateStudent(@RequestBody StudentDTO dto,  @PathVariable("id") long id){
-
-        Optional<Student> studentOpt = studentRepository.findById(id);
-        if (studentOpt.isEmpty()) {
-            System.out.println("Student not found !");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
-        }
-
-        Student student = studentOpt.get();
-        student.setFirstname(dto.getFirstname());
-        student.setLastname(dto.getLastname());
-        student.setEmail(dto.getEmail());
-        student.setTelephone(dto.getTelephone());
-
-        student.getEnrollments().clear();
-        List<Enrollment> enrollments = new ArrayList<>();
-
-        if (dto.getEnrollments() != null) {
-            for (EnrollmentDTO eDTO : dto.getEnrollments()) {
-                Optional<Subject> subjectOpt = subjectRepository.findById(eDTO.getSubjectId());
-                if (subjectOpt.isEmpty()) {
-                    System.out.println("Subject not found for ID: " + eDTO.getSubjectId());
-                    return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-                }
-
-                Subject subject = subjectOpt.get();
-                Enrollment enrollment = enrollmentMapper.toEntity(eDTO, student, subject);
-                enrollments.add(enrollment);
-            }
-        }
-        student.getEnrollments().addAll(enrollments);
-        Student updatedStudent = studentRepository.save(student);
-
-        StudentDTO responseDto = studentMapper.toDTO(updatedStudent);
-        return new ResponseEntity<>(responseDto, HttpStatus.OK);
-    }
-
+    @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @RequestMapping(value ="/{id}", method = RequestMethod.PATCH)
     public ResponseEntity<Student> updatePartOfStudent(@RequestBody Map<String, Object> updates, @PathVariable("id") long id ){
         Optional<Student> studentOpt = studentRepository.findById(id);
@@ -158,22 +113,13 @@ public class StudentRESTController {
     }
 
     private void partialUpdate(Student student, Map<String, Object> updates){
-        if(updates.containsKey("firstname")){
-            student.setFirstname((String) updates.get("firstname"));
-        }
-
-        if(updates.containsKey("lastname")){
-            student.setLastname((String) updates.get("lastname"));
+        if(updates.containsKey("username")){
+            student.setUsername((String) updates.get("username"));
         }
 
         if(updates.containsKey("email")){
             student.setEmail((String) updates.get("email"));
         }
-
-        if(updates.containsKey("telephone")){
-            student.setTelephone((String) updates.get("telephone"));
-        }
-
 
         studentRepository.save(student);
     }

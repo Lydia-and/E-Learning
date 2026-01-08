@@ -1,6 +1,11 @@
 package projectir4.elearning.controllers;
 
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
 import projectir4.elearning.dto.TeacherCourseDTO;
+import projectir4.elearning.mapper.EnrollmentMapper;
+import projectir4.elearning.mapper.EnrollmentRequestMapper;
 import projectir4.elearning.mapper.TeacherCourseMapper;
 import projectir4.elearning.model.Subject;
 import projectir4.elearning.model.Teacher;
@@ -24,21 +29,34 @@ public class TeacherCourseRESTController {
     private final TeacherCourseRepository teacherCourseRepository;
     private final TeacherRepository teacherRepository;
     private final SubjectRepository subjectRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final EnrollmentRequestRepository enrollmentRequestRepository;
 
     private final TeacherCourseMapper teacherCourseMapper;
+    private final EnrollmentMapper enrollmentMapper;
+    private final EnrollmentRequestMapper enrollmentRequestMapper;
 
     @Autowired
-    public TeacherCourseRESTController(TeacherRepository teacherRepository,
-                                       TeacherCourseRepository teacherCourseRepository,
+    public TeacherCourseRESTController(TeacherCourseRepository teacherCourseRepository,
+                                       TeacherRepository teacherRepository,
                                        SubjectRepository subjectRepository,
-                                       TeacherCourseMapper teacherCourseMapper) {
-        this.teacherRepository = teacherRepository;
+                                       EnrollmentRepository enrollmentRepository,
+                                       EnrollmentRequestRepository enrollmentRequestRepository,
+                                       TeacherCourseMapper teacherCourseMapper,
+                                       EnrollmentMapper enrollmentMapper,
+                                       EnrollmentRequestMapper enrollmentRequestMapper) {
         this.teacherCourseRepository = teacherCourseRepository;
+        this.teacherRepository = teacherRepository;
         this.subjectRepository = subjectRepository;
-
+        this.enrollmentRepository = enrollmentRepository;
+        this.enrollmentRequestRepository = enrollmentRequestRepository;
         this.teacherCourseMapper = teacherCourseMapper;
+        this.enrollmentMapper = enrollmentMapper;
+        this.enrollmentRequestMapper = enrollmentRequestMapper;
     }
 
+
+    @PreAuthorize("hasAnyRole('STUDENT','TEACHER','ADMIN')")
     @RequestMapping(method = RequestMethod.GET)
     public List<TeacherCourseDTO> findAllTeacherCourses() {
         return teacherCourseRepository.findAll().stream()
@@ -62,19 +80,22 @@ public class TeacherCourseRESTController {
         return new ResponseEntity<> ( teacherCourseMapper.toDTO(teacherCourse.get()), HttpStatus.OK);
     }
 
-
+    @PreAuthorize("hasRole('TEACHER')")
     @RequestMapping(method = RequestMethod.POST)
-    public ResponseEntity<TeacherCourseDTO> addTeacherCourse(@RequestBody TeacherCourseDTO dto) {
-        Optional<Teacher> teacherOpt = teacherRepository.findById(dto.getTeacherId());
-        Optional<Subject> subjectOpt = subjectRepository.findById(dto.getSubjectId());
+    public ResponseEntity<TeacherCourseDTO> createCourse(@RequestBody TeacherCourseDTO dto, @AuthenticationPrincipal UserDetails userDetails) {
 
-        if (teacherOpt.isEmpty() || subjectOpt.isEmpty()) {
-            return new ResponseEntity<>(HttpStatus.BAD_REQUEST);
-        }
+        Teacher teacher = teacherRepository.findByUsername(userDetails.getUsername())
+                .orElseThrow(() -> new RuntimeException("Teacher not found"));
 
-        TeacherCourse teacherCourse = teacherCourseMapper.toEntity(dto, teacherOpt.get(), subjectOpt.get());
-        TeacherCourse saved = teacherCourseRepository.save(teacherCourse);
+        Subject subject = subjectRepository.findById(dto.getSubject().getId())
+                .orElseThrow(() -> new RuntimeException("Subject not found"));
 
+        TeacherCourse course = new TeacherCourse();
+        course.setTeacher(teacher);
+        course.setSubject(subject);
+        course.setTeacherRole(dto.getTeacherRole());
+
+        TeacherCourse saved = teacherCourseRepository.save(course);
         return new ResponseEntity<>(teacherCourseMapper.toDTO(saved), HttpStatus.CREATED);
     }
 
@@ -104,8 +125,9 @@ public class TeacherCourseRESTController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<TeacherCourse> deleteTeacherCourse(@PathVariable("id") long id) {
+    public ResponseEntity<TeacherCourse> deleteTeacherCourse(@PathVariable("id") long id, @AuthenticationPrincipal UserDetails userDetails) {
         Optional<TeacherCourse> teacherCourseOpt = teacherCourseRepository.findById(id);
 
         if (teacherCourseOpt.isEmpty()) {
@@ -131,6 +153,7 @@ public class TeacherCourseRESTController {
         return new ResponseEntity<TeacherCourse>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasRole('TEACHER')")
     @RequestMapping(value ="/{id}", method = RequestMethod.PATCH)
     public ResponseEntity<TeacherCourseDTO> updatePartOfTeacherCourse(@RequestBody Map<String, Object> updates, @PathVariable("id") long id ){
         Optional<TeacherCourse> teacherCourseOpt = teacherCourseRepository.findById(id);
@@ -151,14 +174,8 @@ public class TeacherCourseRESTController {
             Teacher teacher = teacherCourse.getTeacher();
             if (teacher != null) {
                 Map<String, Object> teacherUpdates = (Map<String, Object>) updates.get("teacher");
-                if (teacherUpdates.containsKey("teacherFirstName")) {
-                    teacher.setTeacherFirstName((String) teacherUpdates.get("teacherFirstName"));
-                }
-                if (teacherUpdates.containsKey("teacherLastName")) {
-                    teacher.setTeacherLastName((String) teacherUpdates.get("teacherLastName"));
-                }
-                if (teacherUpdates.containsKey("number")) {
-                    teacher.setNumber((String) teacherUpdates.get("number"));
+                if (teacherUpdates.containsKey("username")) {
+                    teacher.setUsername((String) teacherUpdates.get("userame"));
                 }
                 if (teacherUpdates.containsKey("email")) {
                     teacher.setEmail((String) teacherUpdates.get("email"));

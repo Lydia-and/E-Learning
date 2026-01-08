@@ -1,5 +1,6 @@
 package projectir4.elearning.mapper;
 
+import org.mapstruct.Mapper;
 import projectir4.elearning.dto.SubjectDTO;
 import projectir4.elearning.model.Subject;
 import projectir4.elearning.model.Teacher;
@@ -10,42 +11,17 @@ import org.springframework.stereotype.Component;
 import java.util.Objects;
 import java.util.stream.Collectors;
 
-@Component
-public class SubjectMapper {
+@Mapper(componentModel = "spring")
+public interface SubjectMapper {
+    SubjectDTO toDTO(Subject subject);
 
-    @Autowired
-    private EnrollmentMapper enrollmentMapper;
+    default Subject toEntity(SubjectDTO dto) {
+        if (dto == null) return null;
 
-    public SubjectDTO toDTO(Subject subject) {
-        SubjectDTO dto = new SubjectDTO();
-        dto.setId(subject.getId());
-        dto.setName(subject.getName());
-        dto.setCoefficient(subject.getCoefficient());
-
-        // map enrollments
-        if (subject.getEnrollments() != null) {
-            dto.setEnrollments(subject.getEnrollments().stream()
-                    .map(enrollmentMapper::toDTO)
-                    .collect(Collectors.toList()));
-        }
-
-        // map teacher IDs only
-        if (subject.getTeacherCourses() != null) {
-            dto.setTeacherIds(subject.getTeacherCourses().stream()
-                    .map(TeacherCourse::getTeacher)
-                    .filter(Objects::nonNull)
-                    .map(Teacher::getId)
-                    .collect(Collectors.toList()));
-        }
-
-        return dto;
-    }
-
-    public Subject toEntity(SubjectDTO dto) {
         Subject subject = new Subject();
+        subject.setId(dto.getId());
         subject.setName(dto.getName());
         subject.setCoefficient(dto.getCoefficient());
-        // Relations (teachers, enrollments) à gérer au service ou avec des appels findById
         return subject;
     }
 }

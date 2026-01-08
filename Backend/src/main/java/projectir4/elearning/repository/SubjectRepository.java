@@ -8,7 +8,6 @@ import java.util.Optional;
 
 @Repository
 public interface SubjectRepository extends JpaRepository<Subject, Long> {
-    Optional<Subject> findById(long id);
-    Subject deleteById(long id);
+    Optional<Subject> findById(Long id);
     Optional<Subject> findByName(String name);
 }

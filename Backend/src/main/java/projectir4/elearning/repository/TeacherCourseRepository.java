@@ -13,12 +13,8 @@ import java.util.Optional;
 @Repository
 public interface TeacherCourseRepository extends JpaRepository<TeacherCourse, Long> {
     Optional<TeacherCourse> findById(long id);
-
-    TeacherCourse deleteById(long id);
-
-    List<TeacherCourse> findAllByTeacherId(Long teacherId);
-
+    List<TeacherCourse> findByTeacher(Teacher teacher);
     boolean existsByTeacherIdAndSubjectId(Long teacherId, Long subjectId);
-
-    Optional<TeacherCourse> findTeacherByID(long id);
+    Optional<TeacherCourse> findTeacherByID(Long id);
+    Optional<TeacherCourse> findTeacherByUsername(String username);
 }

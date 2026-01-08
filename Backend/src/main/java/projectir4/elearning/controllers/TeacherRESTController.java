@@ -1,12 +1,18 @@
 package projectir4.elearning.controllers;
 
+import lombok.RequiredArgsConstructor;
+import org.springframework.security.access.AccessDeniedException;
+import org.springframework.security.access.prepost.PreAuthorize;
+import org.springframework.security.core.annotation.AuthenticationPrincipal;
+import org.springframework.security.core.userdetails.UserDetails;
+import projectir4.elearning.dto.EnrollmentRequestDTO;
 import projectir4.elearning.dto.TeacherCourseDTO;
 import projectir4.elearning.dto.TeacherDTO;
+import projectir4.elearning.mapper.EnrollmentMapper;
+import projectir4.elearning.mapper.EnrollmentRequestMapper;
 import projectir4.elearning.mapper.TeacherCourseMapper;
 import projectir4.elearning.mapper.TeacherMapper;
-import projectir4.elearning.model.Subject;
-import projectir4.elearning.model.Teacher;
-import projectir4.elearning.model.TeacherCourse;
+import projectir4.elearning.model.*;
 import projectir4.elearning.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
@@ -26,25 +32,35 @@ public class TeacherRESTController {
 
     private final TeacherRepository teacherRepository;
     private final TeacherCourseRepository teacherCourseRepository;
-    private final SubjectRepository subjectRepository;
+    private final EnrollmentRepository enrollmentRepository;
+    private final EnrollmentRequestRepository enrollmentRequestRepository;
 
     private final TeacherMapper teacherMapper;
     private final TeacherCourseMapper teacherCourseMapper;
+    private final EnrollmentMapper enrollmentMapper;
+    private final EnrollmentRequestMapper enrollmentRequestMapper;
 
     @Autowired
     public TeacherRESTController(TeacherRepository teacherRepository,
                                  TeacherCourseRepository teacherCourseRepository,
-                                 SubjectRepository subjectRepository,
                                  TeacherMapper teacherMapper,
-                                 TeacherCourseMapper teacherCourseMapper) {
+                                 TeacherCourseMapper teacherCourseMapper,
+                                 EnrollmentRepository enrollmentRepository,
+                                 EnrollmentRequestRepository enrollmentRequestRepository,
+                                 EnrollmentRequestMapper enrollmentRequestMapper,
+                                 EnrollmentMapper enrollmentMapper) {
+
         this.teacherRepository = teacherRepository;
         this.teacherCourseRepository = teacherCourseRepository;
-        this.subjectRepository = subjectRepository;
-
+        this.enrollmentRequestMapper = enrollmentRequestMapper;
+        this.enrollmentRepository = enrollmentRepository;
+        this.enrollmentRequestRepository = enrollmentRequestRepository;
+        this.enrollmentMapper = enrollmentMapper;
         this.teacherMapper = teacherMapper;
         this.teacherCourseMapper = teacherCourseMapper;
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(method = RequestMethod.GET)
     public List<TeacherDTO> findAllTeachers() {
         return teacherRepository.findAll().stream()
@@ -52,6 +68,7 @@ public class TeacherRESTController {
                 .collect(Collectors.toList());
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/{id}", method = RequestMethod.GET)
     public ResponseEntity<TeacherDTO> findTeacherById(@PathVariable Long id){
         Optional<Teacher> teacher = teacherRepository.findById(id);
@@ -62,31 +79,7 @@ public class TeacherRESTController {
         return new ResponseEntity<> (teacherMapper.toDTO(teacher.get()), HttpStatus.OK);
     }
 
-    @RequestMapping(method = RequestMethod.POST)
-    @Transactional
-    public ResponseEntity<TeacherDTO> addTeacher(@RequestBody TeacherDTO teacherDTO) {
-        Teacher teacher = teacherMapper.toEntity(teacherDTO);
-        List<TeacherCourse> teacherCourses = new ArrayList<>();
-
-        if (teacherDTO.getTeacherCourses() != null) {
-            for (TeacherCourseDTO tcDTO : teacherDTO.getTeacherCourses()) {
-                Subject subject = subjectRepository.findById(tcDTO.getSubjectId())
-                        .orElseThrow(() -> new RuntimeException("Subject not found"));
-                TeacherCourse newCourse = new TeacherCourse();
-                newCourse.setTeacher(teacher);
-                newCourse.setSubject(subject);
-                newCourse.setTeacherRole(tcDTO.getRole());
-                teacherCourses.add(newCourse);
-            }
-        }
-
-        teacher.setTeacherCourses(teacherCourses);
-        Teacher saved = teacherRepository.save(teacher);
-        //teacherCourseRepository.saveAll(teacherCourses);
-
-        return new ResponseEntity<>(teacherMapper.toDTO(saved), HttpStatus.CREATED);
-    }
-
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(method = RequestMethod.DELETE)
     @Transactional
     public ResponseEntity<Void> deleteAllTeachers(){
@@ -94,6 +87,7 @@ public class TeacherRESTController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE)
     @Transactional
     public ResponseEntity<Teacher> deleteTeacher(@PathVariable("id") long id) {
@@ -106,83 +100,51 @@ public class TeacherRESTController {
         return new ResponseEntity<>(HttpStatus.NO_CONTENT);
     }
 
-    //supprime aussi
-    @PutMapping
-    @Transactional
-    public ResponseEntity<List<TeacherDTO>> updateAllTeachers(@RequestBody List<TeacherDTO> teacherDTOs) {
-        teacherRepository.deleteAll();
-        List<Teacher> teachers = new ArrayList<>();
+    @DeleteMapping("/me/courses/{courseId}/students/{studentId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> removeStudentFromCourse(
+            @PathVariable Long courseId,
+            @PathVariable Long studentId,
+            @AuthenticationPrincipal UserDetails userDetails) {
 
-        for (TeacherDTO dto : teacherDTOs) {
-            Teacher teacher = teacherMapper.toEntity(dto);
+        TeacherCourse course = teacherCourseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
 
-            List<TeacherCourse> teacherCourses = new ArrayList<>();
-            if (dto.getTeacherCourses() != null) {
-                for (TeacherCourseDTO tcDTO : dto.getTeacherCourses()) {
-                    Subject subject = subjectRepository.findById(tcDTO.getSubjectId())
-                            .orElseThrow(() -> new RuntimeException("Subject not found"));
-                    TeacherCourse newCourse = new TeacherCourse();
-                    newCourse.setTeacher(teacher);
-                    newCourse.setSubject(subject);
-                    newCourse.setTeacherRole(tcDTO.getRole());
-                    teacherCourses.add(newCourse);
-                }
-            }
-            teacher.setTeacherCourses(teacherCourses);
-            teachers.add(teacher);
+        if (!course.getTeacher().getUsername().equals(userDetails.getUsername())) {
+            throw new AccessDeniedException("Not your course");
         }
 
-        List<Teacher> savedTeachers = teacherRepository.saveAll(teachers);
+        Enrollment enrollment = enrollmentRepository
+                .findByStudentIdAndSubjectId(studentId, course.getSubject().getId())
+                .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
-        List<TeacherDTO> response = savedTeachers.stream()
-                .map(teacherMapper::toDTO)
-                .collect(Collectors.toList());
-
-        return new ResponseEntity<>(response, HttpStatus.OK);
+        enrollmentRepository.delete(enrollment);
+        return ResponseEntity.noContent().build();
     }
 
-    //supprime
-    @RequestMapping(value ="/{id}", method = RequestMethod.PUT)
-    @Transactional
-    public ResponseEntity<TeacherDTO> updateTeacher(@RequestBody TeacherDTO updatedDTO, @PathVariable("id") long id) {
-        Optional<Teacher> teacherOpt = teacherRepository.findById(id);
-        if (teacherOpt.isEmpty()) {
-            System.out.println("Teacher not found !");
-            return new ResponseEntity<>(HttpStatus.NOT_FOUND);
+    @DeleteMapping("/{courseId}/students/{studentId}")
+    @PreAuthorize("hasRole('TEACHER')")
+    public ResponseEntity<Void> removeStudent(
+            @PathVariable Long courseId,
+            @PathVariable Long studentId,
+            @AuthenticationPrincipal UserDetails userDetails) {
+
+        TeacherCourse course = teacherCourseRepository.findById(courseId)
+                .orElseThrow(() -> new RuntimeException("Course not found"));
+
+        if (!course.getTeacher().getUsername().equals(userDetails.getUsername())) {
+            throw new AccessDeniedException("Not your course");
         }
 
-        Teacher teacher = teacherOpt.get();
-        teacher.setTeacherFirstName(updatedDTO.getFirstname());
-        teacher.setTeacherLastName(updatedDTO.getLastname());
-        teacher.setEmail(updatedDTO.getEmail());
-        teacher.setNumber(updatedDTO.getNumber());
+        Enrollment enrollment = enrollmentRepository
+                .findByStudentIdAndSubjectId(studentId, course.getSubject().getId())
+                .orElseThrow(() -> new RuntimeException("Enrollment not found"));
 
-        List<TeacherCourse> updatedCourses = new ArrayList<>();
-        if (updatedDTO.getTeacherCourses() != null) {
-            for (TeacherCourseDTO teacherCourseDTO : updatedDTO.getTeacherCourses()) {
-                Subject subject = subjectRepository.findById(teacherCourseDTO.getSubjectId())
-                        .orElseThrow(() -> new RuntimeException("Subject not found"));
-
-                TeacherCourse course = new TeacherCourse();
-
-                course.setId(teacherCourseDTO.getId());
-                course.setTeacher(teacher);
-                course.setSubject(subject);
-                course.setTeacherRole(teacherCourseDTO.getRole());
-
-                updatedCourses.add(course);
-            }
-        }
-
-        teacher.getTeacherCourses().clear();
-        teacher.getTeacherCourses().addAll(updatedCourses);
-
-        Teacher saved = teacherRepository.save(teacher);
-        //teacherCourseRepository.saveAll(updatedCourses);
-
-        return new ResponseEntity<>(teacherMapper.toDTO(saved), HttpStatus.OK);
+        enrollmentRepository.delete(enrollment);
+        return ResponseEntity.noContent().build();
     }
 
+    @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value ="/{id}", method = RequestMethod.PATCH)
     public ResponseEntity<Teacher> updatePartOfTeacher(@RequestBody Map<String, Object> updates, @PathVariable("id") long id ){
         Optional<Teacher> teacherOpt = teacherRepository.findById(id);
@@ -197,20 +159,12 @@ public class TeacherRESTController {
     }
 
     private void partialUpdate(Teacher teacher, Map<String, Object> updates){
-        if(updates.containsKey("teacherFirstName")){
-            teacher.setTeacherFirstName((String) updates.get("teacherFirstName"));
-        }
-
-        if(updates.containsKey("teacherLastName")){
-            teacher.setTeacherLastName((String) updates.get("teacherLastName"));
+        if(updates.containsKey("username")){
+            teacher.setUsername((String) updates.get("username"));
         }
 
         if(updates.containsKey("email")){
             teacher.setEmail((String) updates.get("email"));
-        }
-
-        if(updates.containsKey("number")){
-            teacher.setNumber((String) updates.get("number"));
         }
 
         teacherRepository.save(teacher);
