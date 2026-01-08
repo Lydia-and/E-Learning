@@ -3,10 +3,14 @@ package projectir4.elearning.model;
 import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
 import java.util.HashSet;
 import java.util.Set;
 
+@Setter
+@Getter
 @Entity
 public class Subject {
 
@@ -23,43 +27,9 @@ public class Subject {
     @Id
     @GeneratedValue
     private long id;
-
     private String name;
-
     private int coefficient;
-
 
     public Subject() {}
 
-    public long getId() {
-        return id;
-    }
-
-    public void setId(long id) {
-        this.id = id;
-    }
-
-    public String getName() {
-        return name;
-    }
-
-    public void setName(String name) {
-        this.name = name;
-    }
-
-    public int getCoefficient() {
-        return coefficient;
-    }
-
-    public void setCoefficient(int coefficient) {
-        this.coefficient = coefficient;
-    }
-
-    public Set<Enrollment> getEnrollments() { return enrollments; }
-
-    public void setEnrollments(Set<Enrollment> enrollments) { this.enrollments = enrollments; }
-
-    public Set<TeacherCourse> getTeacherCourses() {return teacherCourses;}
-
-    public void setTeacherCourses(Set<TeacherCourse> teacherCourses) {this.teacherCourses = teacherCourses;}
 }

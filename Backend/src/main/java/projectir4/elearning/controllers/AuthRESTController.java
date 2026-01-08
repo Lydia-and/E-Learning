@@ -4,9 +4,7 @@ import projectir4.elearning.message.request.LoginForm;
 import projectir4.elearning.message.request.SignUpForm;
 import projectir4.elearning.message.response.JwtResponse;
 import projectir4.elearning.message.response.ResponseMessage;
-import projectir4.elearning.model.Role;
-import projectir4.elearning.model.RoleName;
-import projectir4.elearning.model.User;
+import projectir4.elearning.model.*;
 import projectir4.elearning.repository.RoleRepository;
 import projectir4.elearning.repository.UserRepository;
 import projectir4.elearning.security.jwt.JwtProvider;
@@ -63,9 +61,10 @@ public class AuthRESTController {
     @PostMapping(value ="/signup",  produces = MediaType.APPLICATION_JSON_VALUE)
     public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpForm signUpRequest){
         if (userRepository.existsByUsername(signUpRequest.getUsername())){
-            return new ResponseEntity <>(new ResponseMessage("Fail -> Username is already taken."), HttpStatus.BAD_REQUEST);
+            return new ResponseEntity <>(new ResponseMessage("Invalid username or password. Please try again"), HttpStatus.BAD_REQUEST);
         }
-        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), passwordEncoder.encode(signUpRequest.getPassword()));
+        String password = passwordEncoder.encode(signUpRequest.getPassword());
+        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), password);
 
 
         Set<String> strRoles = signUpRequest.getRole();
@@ -81,22 +80,21 @@ public class AuthRESTController {
                 }
 
                 Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
-                        .orElseThrow(() -> new RuntimeException("Fail ->  Cause: Role Teacher not found."));
-                roles.add(teacherRole);
+                        .orElseThrow(() -> new RuntimeException("Role Teacher not found."));
+                user = new Teacher();
+                user.getRoles().add(teacherRole);
 
             } else if (role.equals("user") || role.equals("USER")){
-                Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Fail ->  Cause: Role User not found."));
-                roles.add(userRole);
-            }else{
-                Role userRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-                        .orElseThrow(() -> new RuntimeException("Fail ->  Cause: Role admin not found."));
-                roles.add(userRole);
+                Role studentRole = roleRepository.findByName(RoleName.ROLE_USER)
+                        .orElseThrow(() -> new RuntimeException("Role User not found."));
+                user = new Student();
+                user.getRoles().add(studentRole);
             }
         }
 
-        user.setRoles(roles);
-        System.out.println("Saving user: " + user.getUsername() + ", email: " + user.getEmail());
+        user.setUsername(signUpRequest.getUsername());
+        user.setEmail(signUpRequest.getEmail());
+        user.setPassword(password);
 
         userRepository.save(user);
         return new ResponseEntity<> (new ResponseMessage("User registered successfully."), HttpStatus.OK);

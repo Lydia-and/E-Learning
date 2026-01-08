@@ -2,7 +2,11 @@ package projectir4.elearning.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
+import lombok.Getter;
+import lombok.Setter;
 
+@Setter
+@Getter
 @Entity
 public class Enrollment {
 
@@ -23,35 +27,4 @@ public class Enrollment {
 
     private double grade;
 
-    public Long getId() {
-        return id;
-    }
-
-    public void setId(Long id) {
-        this.id = id;
-    }
-
-    public Student getStudent() {
-        return student;
-    }
-
-    public void setStudent(Student student) {
-        this.student = student;
-    }
-
-    public Subject getSubject() {
-        return subject;
-    }
-
-    public void setSubject(Subject subject) {
-        this.subject = subject;
-    }
-
-    public double getGrade() {
-        return grade;
-    }
-
-    public void setGrade(double grade) {
-        this.grade = grade;
-    }
 }
