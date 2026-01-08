@@ -27,77 +27,118 @@ import java.util.HashSet;
 import java.util.Set;
 
 @RestController
-@CrossOrigin(origins="http://localhost:4200", maxAge =3600)
+@CrossOrigin(origins = "http://localhost:4200", maxAge = 3600)
 @RequestMapping("/auth")
 public class AuthRESTController {
 
-    private DaoAuthenticationProvider daoAuthenticationProvider;
-    private UserRepository userRepository;
-    private RoleRepository roleRepository;
-    private PasswordEncoder passwordEncoder;
-    private JwtProvider jwtProvider;
+    private final DaoAuthenticationProvider daoAuthenticationProvider;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final JwtProvider jwtProvider;
 
     @Autowired
     public AuthRESTController(DaoAuthenticationProvider daoAuthenticationProvider,
-                              UserRepository userRepository, RoleRepository roleRepository,
-                              PasswordEncoder passwordEncoder, JwtProvider jwtProvider) {
+                              UserRepository userRepository,
+                              RoleRepository roleRepository,
+                              PasswordEncoder passwordEncoder,
+                              JwtProvider jwtProvider) {
         this.daoAuthenticationProvider = daoAuthenticationProvider;
         this.userRepository = userRepository;
         this.roleRepository = roleRepository;
         this.passwordEncoder = passwordEncoder;
         this.jwtProvider = jwtProvider;
-
     }
 
-    @PostMapping(value ="/signin", produces = "application/json")
-    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest){
+    // ===================== SIGN IN =====================
+    @PostMapping(value = "/signin", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest) {
+
         Authentication authentication = daoAuthenticationProvider.authenticate(
-                new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
+                new UsernamePasswordAuthenticationToken(
+                        loginRequest.getUsername(),
+                        loginRequest.getPassword()
+                )
+        );
+
         SecurityContextHolder.getContext().setAuthentication(authentication);
         String jwt = jwtProvider.generateJwtToken(authentication);
         UserDetails userDetails = (UserDetails) authentication.getPrincipal();
 
-        return ResponseEntity.ok(new JwtResponse(jwt, userDetails.getUsername(), userDetails.getAuthorities()));
+        return ResponseEntity.ok(
+                new JwtResponse(jwt, userDetails.getUsername(), userDetails.getAuthorities())
+        );
     }
 
-    @PostMapping(value ="/signup",  produces = MediaType.APPLICATION_JSON_VALUE)
-    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpForm signUpRequest){
-        if (userRepository.existsByUsername(signUpRequest.getUsername())){
-            return new ResponseEntity <>(new ResponseMessage("Fail -> Username is already taken."), HttpStatus.BAD_REQUEST);
+    // ===================== SIGN UP =====================
+    @PostMapping(value = "/signup", produces = MediaType.APPLICATION_JSON_VALUE)
+    public ResponseEntity<?> registerUser(@Valid @RequestBody SignUpForm signUpRequest) {
+
+        if (userRepository.existsByUsername(signUpRequest.getUsername())) {
+            return ResponseEntity
+                    .status(HttpStatus.BAD_REQUEST)
+                    .body(new ResponseMessage("Fail -> Username is already taken."));
         }
-        User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), passwordEncoder.encode(signUpRequest.getPassword()));
 
-        Set<String> strRoles = signUpRequest.getRole();
+        User user = new User(
+                signUpRequest.getUsername(),
+                signUpRequest.getEmail(),
+                passwordEncoder.encode(signUpRequest.getPassword())
+        );
+
         Set<Role> roles = new HashSet<>();
+        Set<String> strRoles = signUpRequest.getRole();
 
-        for (String role : strRoles) {
-            if (role.equals("teacher") || role.equals("TEACHER")) {
+        // Si aucun rôle n'est fourni → USER par défaut
+        if (strRoles == null || strRoles.isEmpty()) {
+            Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                    .orElseThrow(() -> new RuntimeException("Role USER not found."));
+            roles.add(userRole);
+        } else {
 
-                if (!"SECRET123".equals(signUpRequest.getSecretCode())) {
-                    return ResponseEntity
-                            .status(HttpStatus.FORBIDDEN)
-                            .body(new ResponseMessage("Teacher code incorrect."));
+            for (String role : strRoles) {
+
+                switch (role.toLowerCase()) {
+
+                    case "teacher":
+                        if (!"SECRET123".equals(signUpRequest.getSecretCode())) {
+                            return ResponseEntity
+                                    .status(HttpStatus.FORBIDDEN)
+                                    .body(new ResponseMessage("Teacher code incorrect."));
+                        }
+
+                        Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
+                                .orElseThrow(() -> new RuntimeException("Role TEACHER not found."));
+                        roles.add(teacherRole);
+                        break;
+
+                    case "admin":
+                        if (!"ADMIN123".equals(signUpRequest.getSecretCode())) {
+                            return ResponseEntity
+                                    .status(HttpStatus.FORBIDDEN)
+                                    .body(new ResponseMessage("Admin code incorrect."));
+                        }
+
+                        Role adminRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
+                                .orElseThrow(() -> new RuntimeException("Role ADMIN not found."));
+                        roles.add(adminRole);
+                        break;
+
+                    case "user":
+                    default:
+                        Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Role USER not found."));
+                        roles.add(userRole);
+                        break;
                 }
-
-                Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
-                        .orElseThrow(() -> new RuntimeException("Fail ->  Cause: Role Teacher not found."));
-                roles.add(teacherRole);
-
-            } else if (role.equals("user") || role.equals("USER")){
-                Role userRole = roleRepository.findByName(RoleName.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Fail ->  Cause: Role User not found."));
-                roles.add(userRole);
-            }else{
-                Role userRole = roleRepository.findByName(RoleName.ROLE_ADMIN)
-                        .orElseThrow(() -> new RuntimeException("Fail ->  Cause: Role admin not found."));
-                roles.add(userRole);
             }
         }
+
         user.setRoles(roles);
-        System.out.println("Saving user: " + user.getUsername() + ", email: " + user.getEmail());
-
         userRepository.save(user);
-        return new ResponseEntity<> (new ResponseMessage("User registered successfully."), HttpStatus.OK);
-    }
 
+        return ResponseEntity
+                .status(HttpStatus.OK)
+                .body(new ResponseMessage("User registered successfully."));
+    }
 }
