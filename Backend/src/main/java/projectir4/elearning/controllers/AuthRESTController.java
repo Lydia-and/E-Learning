@@ -67,6 +67,7 @@ public class AuthRESTController {
         }
         User user = new User(signUpRequest.getUsername(), signUpRequest.getEmail(), passwordEncoder.encode(signUpRequest.getPassword()));
 
+
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
 
@@ -93,6 +94,7 @@ public class AuthRESTController {
                 roles.add(userRole);
             }
         }
+
         user.setRoles(roles);
         System.out.println("Saving user: " + user.getUsername() + ", email: " + user.getEmail());
 

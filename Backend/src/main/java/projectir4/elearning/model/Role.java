@@ -3,6 +3,7 @@ package projectir4.elearning.model;
 import jakarta.persistence.*;
 import org.hibernate.annotations.NaturalId;
 
+@Table(name = "role")
 @Entity
 public class Role {
 

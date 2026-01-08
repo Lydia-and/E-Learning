@@ -36,9 +36,7 @@ public class SignUpForm {
         return username;
     }
 
-    public Set<String> getRole() {
-        return role;
-    }
+    public Set<String> getRole() {return role;}
 
     public String getPassword() {
         return password;

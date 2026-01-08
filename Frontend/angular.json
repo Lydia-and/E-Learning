@@ -9,8 +9,8 @@
     "Frontend": {
       "projectType": "application",
       "schematics": {},
-      "root": "Frontend/src",
-      "sourceRoot": "Frontend/src",
+      "root": "",
+      "sourceRoot": "src",
       "prefix": "app",
       "architect": {
         "build": {

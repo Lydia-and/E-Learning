@@ -41,7 +41,7 @@ export class SignupPageComponent {
       this.signupData.email,
       this.signupData.password,
       this.signupData.confirmPassword,
-      role,
+      this.signupData.role,
       this.signupData.secretCode
     );
 

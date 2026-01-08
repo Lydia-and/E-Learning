@@ -83,11 +83,11 @@
             <select id="role" name="role" [(ngModel)]="signupData.role"
                     class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg" required>
               <option value="user">Student</option>
-              <option value="admin">Teacher</option>
+              <option value="teacher">Teacher</option>
             </select>
           </div>
 
-          <div *ngIf="signupData.role === 'admin'">
+          <div *ngIf="signupData.role === 'teacher'">
             <label for="secretCode" class="block text-sm font-medium text-gray-700 mb-1">Teacher Secret Code</label>
             <input type="text" id="secretCode" name="secretCode" [(ngModel)]="signupData.secretCode"
                    class="w-full pl-3 pr-4 py-2 border border-gray-300 rounded-lg" required>

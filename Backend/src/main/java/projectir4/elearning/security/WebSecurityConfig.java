@@ -1,10 +1,9 @@
 package projectir4.elearning.security;
-
+import org.springframework.http.HttpMethod;
 import projectir4.elearning.security.jwt.JwtAuthEntryPoint;
 import projectir4.elearning.security.jwt.JwtAuthTokenFilter;
 import projectir4.elearning.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.DispatcherType;
-import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 import org.springframework.security.authentication.dao.DaoAuthenticationProvider;
@@ -21,6 +20,8 @@ import org.springframework.security.web.authentication.UsernamePasswordAuthentic
 import org.springframework.web.servlet.config.annotation.CorsRegistry;
 import org.springframework.web.servlet.config.annotation.WebMvcConfigurer;
 
+import static org.springframework.security.config.Customizer.withDefaults;
+
 @Configuration
 @EnableWebSecurity
 @EnableMethodSecurity
@@ -36,18 +37,20 @@ public class WebSecurityConfig {
     }
 
     @Bean
-    public JwtAuthTokenFilter authenticationJwtTokenFilter() {return new JwtAuthTokenFilter();}
+    public JwtAuthTokenFilter authenticationJwtTokenFilter() {
+        return new JwtAuthTokenFilter();
+    }
 
     @Bean
-    public PasswordEncoder passwordEncoder() {return new BCryptPasswordEncoder();}
+    public PasswordEncoder passwordEncoder() {
+        return new BCryptPasswordEncoder();
+    }
 
-    @Bean
-    DaoAuthenticationProvider authProvider(){
+    @Bean DaoAuthenticationProvider authProvider() {
         DaoAuthenticationProvider authProvider = new DaoAuthenticationProvider(userDetailsService);
         authProvider.setPasswordEncoder(passwordEncoder());
         return authProvider;
     }
-
 
     @Bean
     public WebMvcConfigurer corsConfigurer() {
@@ -65,19 +68,18 @@ public class WebSecurityConfig {
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http
-                .cors(Customizer.withDefaults())
+                .cors(withDefaults())
                 .csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests((auth) -> auth
-                        .dispatcherTypeMatchers(DispatcherType.FORWARD).permitAll()
-                        .requestMatchers("/").permitAll()
-                        .requestMatchers("/addStudent.html").permitAll()
 
-                        .requestMatchers("/auth/**").permitAll()
-                        .requestMatchers("/students/**").permitAll()
-                        .requestMatchers("/subjects/**").permitAll()
-                        .requestMatchers("/teachers/**").permitAll()
-                        .requestMatchers("/enrollments/**").permitAll()
-                        .requestMatchers("/error").permitAll()
+                        .requestMatchers("/auth/**", "/error").permitAll()
+
+                        .requestMatchers(HttpMethod.GET, "/subjects/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+                        .requestMatchers("/subjects/**").hasAnyRole("TEACHER", "ADMIN")
+
+                        .requestMatchers("/enrollments/**").hasAnyRole("STUDENT", "TEACHER", "ADMIN")
+
+                        .requestMatchers("/teacherCourses/**").hasAnyRole("TEACHER", "ADMIN")
 
                         .anyRequest().authenticated()
                 )
@@ -90,4 +92,5 @@ public class WebSecurityConfig {
         http.addFilterBefore(authenticationJwtTokenFilter(), UsernamePasswordAuthenticationFilter.class);
         return http.build();
     }
+
 }
