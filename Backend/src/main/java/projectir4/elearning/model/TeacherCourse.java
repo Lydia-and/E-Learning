@@ -5,6 +5,9 @@ import jakarta.persistence.*;
 import lombok.Getter;
 import lombok.Setter;
 
+import java.util.HashSet;
+import java.util.Set;
+
 @Setter
 @Getter
 @Entity
@@ -24,6 +27,9 @@ public class TeacherCourse {
     @JoinColumn//(name = "subject_id")
     private Subject subject;
 
-    private String teacherRole;
+    @OneToMany(mappedBy = "teacherCourse", cascade = CascadeType.ALL, orphanRemoval = true)
+    @JsonIgnoreProperties("teacherCourse")
+    private Set<EnrollmentRequest> enrollmentRequests = new HashSet<>();
 
+    private String teacherRole;
 }

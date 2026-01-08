@@ -15,7 +15,6 @@ public class SignUpForm {
     @Size(min= 3, max = 50)
     private String email;
 
-    private String secretCode;
     private Set<String> role;
 
     @NotBlank
@@ -24,12 +23,11 @@ public class SignUpForm {
 
     public SignUpForm(){}
 
-    public SignUpForm(String username, String email, String secretCode, Set<String> role, String password) {
+    public SignUpForm(String username, String email, Set<String> role, String password) {
         this.username = username;
         this.email = email;
         this.password = password;
         this.role = role;
-        this.secretCode = secretCode;
     }
 
     public String getUsername() {
@@ -41,8 +39,6 @@ public class SignUpForm {
     public String getPassword() {
         return password;
     }
-
-    public String getSecretCode() {return secretCode;}
 
     public String getEmail() {return email;}
 }

@@ -73,12 +73,6 @@ public class AuthRESTController {
         for (String role : strRoles) {
             if (role.equals("teacher") || role.equals("TEACHER")) {
 
-                if (!"SECRET123".equals(signUpRequest.getSecretCode())) {
-                    return ResponseEntity
-                            .status(HttpStatus.FORBIDDEN)
-                            .body(new ResponseMessage("Teacher code incorrect."));
-                }
-
                 Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
                         .orElseThrow(() -> new RuntimeException("Role Teacher not found."));
                 user = new Teacher();
