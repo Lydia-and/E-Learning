@@ -9,8 +9,8 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EnrollmentDTO {
+public class UserDTO {
     private Long id;
-    private SubjectDTO subject;
-    private Double grade;
+    private String username;
+    private String email;
 }

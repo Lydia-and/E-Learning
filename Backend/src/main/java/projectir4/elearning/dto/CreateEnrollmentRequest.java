@@ -9,8 +9,6 @@ import lombok.Setter;
 @AllArgsConstructor
 @Getter
 @Setter
-public class EnrollmentDTO {
-    private Long id;
-    private SubjectDTO subject;
-    private Double grade;
+public class CreateEnrollmentRequest {
+    private Long teacherCourseId;
 }

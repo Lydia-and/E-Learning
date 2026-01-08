@@ -4,13 +4,16 @@ import lombok.AllArgsConstructor;
 import lombok.Getter;
 import lombok.NoArgsConstructor;
 import lombok.Setter;
+import projectir4.elearning.model.RequestStatus;
 
 @NoArgsConstructor
 @AllArgsConstructor
 @Getter
 @Setter
-public class EnrollmentDTO {
+public class EnrollmentRequestDTO {
+
     private Long id;
-    private SubjectDTO subject;
-    private Double grade;
+    private StudentDTO student;
+    private TeacherCourseDTO teacherCourse;
+    private RequestStatus status;
 }

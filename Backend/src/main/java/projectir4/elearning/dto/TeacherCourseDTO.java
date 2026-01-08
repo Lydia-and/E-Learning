@@ -1,25 +1,20 @@
 package projectir4.elearning.dto;
 
+
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+
+@Setter
+@Getter
+@AllArgsConstructor
+@NoArgsConstructor
 public class TeacherCourseDTO {
 
     private Long id;
-    private Long teacherId;
-    private Long subjectId;
-    private String role;
+    private SubjectDTO subject;
+    private TeacherDTO teacher;
+    private String teacherRole;
 
-    public Long getId() {return id;}
-
-    public void setId(Long id) {this.id = id;}
-
-    public Long getTeacherId() {return teacherId;}
-
-    public void setTeacherId(Long teacherId) {this.teacherId = teacherId;}
-
-    public Long getSubjectId() {return subjectId;}
-
-    public void setSubjectId(Long subjectId) {this.subjectId = subjectId;}
-
-    public String getRole() {return role;}
-
-    public void setRole(String role) {this.role = role;}
 }
