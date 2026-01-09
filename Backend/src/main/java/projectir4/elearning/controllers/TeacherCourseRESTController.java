@@ -127,7 +127,7 @@ public class TeacherCourseRESTController {
 
     @PreAuthorize("hasRole('TEACHER')")
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<TeacherCourse> deleteTeacherCourse(@PathVariable("id") long id, @AuthenticationPrincipal UserDetails userDetails) {
+    public ResponseEntity<TeacherCourse> deleteTeacherCourse(@PathVariable("id") Long id, @AuthenticationPrincipal UserDetails userDetails) {
         Optional<TeacherCourse> teacherCourseOpt = teacherCourseRepository.findById(id);
 
         if (teacherCourseOpt.isEmpty()) {
@@ -155,7 +155,7 @@ public class TeacherCourseRESTController {
 
     @PreAuthorize("hasRole('TEACHER')")
     @RequestMapping(value ="/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<TeacherCourseDTO> updatePartOfTeacherCourse(@RequestBody Map<String, Object> updates, @PathVariable("id") long id ){
+    public ResponseEntity<TeacherCourseDTO> updatePartOfTeacherCourse(@RequestBody Map<String, Object> updates, @PathVariable("id") Long id ){
         Optional<TeacherCourse> teacherCourseOpt = teacherCourseRepository.findById(id);
 
         if (teacherCourseOpt.isEmpty()) {

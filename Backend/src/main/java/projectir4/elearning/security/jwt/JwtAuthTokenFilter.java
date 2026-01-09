@@ -1,5 +1,6 @@
 package projectir4.elearning.security.jwt;
 
+import org.springframework.stereotype.Component;
 import projectir4.elearning.security.services.UserDetailsServiceImpl;
 import jakarta.servlet.FilterChain;
 import jakarta.servlet.ServletException;
@@ -14,12 +15,14 @@ import org.springframework.web.filter.OncePerRequestFilter;
 
 import java.io.IOException;
 
+@Component
 public class JwtAuthTokenFilter extends OncePerRequestFilter {
 
     @Autowired
     private JwtProvider tokenProvider;
     @Autowired
     private UserDetailsServiceImpl userDetailsService;
+
 
     @Override
     protected void doFilterInternal(HttpServletRequest httpServletRequest, HttpServletResponse httpServletResponse,
@@ -43,8 +46,8 @@ public class JwtAuthTokenFilter extends OncePerRequestFilter {
 
     private String getJwt(HttpServletRequest request) {
         String authHeader = request.getHeader("Authorization");
-        if (authHeader != null && authHeader.startsWith("Bearer")) {
-            return authHeader.replace("Bearer", "");
+        if (authHeader != null && authHeader.startsWith("Bearer ")) {
+            return authHeader.substring(7);
         }
         return null;
     }

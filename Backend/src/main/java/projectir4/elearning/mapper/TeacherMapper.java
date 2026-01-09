@@ -19,19 +19,6 @@ public class TeacherMapper {
         dto.setId(teacher.getId());
         dto.setUsername(teacher.getUsername());
         dto.setEmail(teacher.getEmail());
-        dto.setNumber(teacher.getNumber());
-
-        if (teacher.getTeacherCourses() != null) {
-            List<TeacherCourseDTO> courseDTOs = teacher.getTeacherCourses().stream()
-                    .map(course -> {
-                        TeacherCourseDTO cDto = new TeacherCourseDTO();
-                        cDto.setId(course.getId());
-                        cDto.setSubjectId(course.getSubject().getId());
-                        cDto.setRole(course.getTeacherRole());
-                        return cDto;
-                    }).collect(Collectors.toList());
-            dto.setTeacherCourses(courseDTOs);
-        }
 
         return dto;
     }
@@ -40,17 +27,8 @@ public class TeacherMapper {
         Teacher teacher = new Teacher();
         teacher.setUsername(dto.getUsername());
         teacher.setEmail(dto.getEmail());
-        teacher.setNumber(dto.getNumber());
         teacher.setTeacherCourses(new ArrayList<>());
-        if (dto.getTeacherCourses() != null) {
-            for (TeacherCourseDTO cDto : dto.getTeacherCourses()) {
-                TeacherCourse course = new TeacherCourse();
-                course.setTeacherRole(cDto.getRole());
-                course.setTeacher(teacher);
 
-                teacher.getTeacherCourses().add(course);
-            }
-        }
         return teacher;
     }
 }

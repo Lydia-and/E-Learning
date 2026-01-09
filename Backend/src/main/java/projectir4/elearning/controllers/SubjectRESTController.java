@@ -119,7 +119,7 @@ public class SubjectRESTController {
 
     @PreAuthorize("hasAnyRole('ADMIN','TEACHER')")
     @GetMapping("/{id}/students")
-    public ResponseEntity<List<StudentDTO>> getStudentsForSubject(@PathVariable long id, Authentication auth) {
+    public ResponseEntity<List<StudentDTO>> getStudentsForSubject(@PathVariable Long id, Authentication auth) {
         Optional<Subject> subjectOpt = subjectRepository.findById(id);
         if (subjectOpt.isEmpty()) return new ResponseEntity<>(HttpStatus.NOT_FOUND);
 

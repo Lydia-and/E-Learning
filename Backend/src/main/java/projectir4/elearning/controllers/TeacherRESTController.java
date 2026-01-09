@@ -90,7 +90,7 @@ public class TeacherRESTController {
     @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE)
     @Transactional
-    public ResponseEntity<Teacher> deleteTeacher(@PathVariable("id") long id) {
+    public ResponseEntity<Teacher> deleteTeacher(@PathVariable("id") Long id) {
         Optional<Teacher> teacher = teacherRepository.findById(id);
         if(teacher.isEmpty()){
             System.out.println("Teacher not found !");
@@ -146,7 +146,7 @@ public class TeacherRESTController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value ="/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<Teacher> updatePartOfTeacher(@RequestBody Map<String, Object> updates, @PathVariable("id") long id ){
+    public ResponseEntity<Teacher> updatePartOfTeacher(@RequestBody Map<String, Object> updates, @PathVariable("id") Long id ){
         Optional<Teacher> teacherOpt = teacherRepository.findById(id);
 
         if(teacherOpt.isEmpty()){

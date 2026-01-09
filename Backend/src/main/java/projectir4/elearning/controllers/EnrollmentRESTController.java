@@ -85,29 +85,22 @@ public class EnrollmentRESTController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ADMIN','STUDENT','TEACHER')")
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or authentication.principal.userId == #id")
     @GetMapping("/{id}")
     public ResponseEntity<EnrollmentDTO> findEnrollmentById(@PathVariable Long id, Authentication authentication) {
-        Enrollment enrollment = enrollmentRepository.findById(id);
+
         Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
         if (enrollmentOpt.equals("")) {
             System.out.println("Enrollment not found !");
             return new ResponseEntity<>(HttpStatus.NOT_FOUND);
         }
 
-
-        if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_STUDENT"))) {
-            String username = authentication.getName();
-            if (!enrollment.getStudent().getEmail().equals(username)) {
-                return new ResponseEntity<>(HttpStatus.FORBIDDEN);
-            }
-        }
-
+        Enrollment enrollment = enrollmentOpt.get();
 
         if (authentication.getAuthorities().stream().anyMatch(a -> a.getAuthority().equals("ROLE_TEACHER"))) {
             String username = authentication.getName();
             boolean ownsCourse = enrollment.getSubject().getTeacherCourses().stream()
-                    .anyMatch(tc -> tc.getTeacher().getEmail().equals(username));
+                    .anyMatch(teach -> teach.getTeacher().getEmail().equals(username));
             if (!ownsCourse) return new ResponseEntity<>(HttpStatus.FORBIDDEN);
         }
 
@@ -115,14 +108,14 @@ public class EnrollmentRESTController {
     }
 
 
-    @PreAuthorize("hasRole('STUDENT')")
+    @PreAuthorize(" @StudentRepository.findById(#id).orElseThrow().getUser().getId() == authentication.principal.userId")
     @PostMapping
     public ResponseEntity<EnrollmentDTO> addEnrollment(@RequestBody EnrollmentDTO dto, Authentication authentication) {
         String username = authentication.getName();
         Student student = studentRepository.findByEmail(username)
                 .orElseThrow(() -> new RuntimeException("Student not found"));
 
-        Subject subject = subjectRepository.findById(dto.getSubjectId())
+        Subject subject = subjectRepository.findById(dto.getId())
                 .orElseThrow(() -> new RuntimeException("Subject not found"));
 
         Enrollment enrollment = enrollmentMapper.toEntity(dto, student, subject);
@@ -132,7 +125,8 @@ public class EnrollmentRESTController {
     }
 
 
-    @PreAuthorize("hasAnyRole('ADMIN','STUDENT','TEACHER')")
+    //a voir si je faire userRepo ou StudentRepo, selon si avec user le prof peut delte que ses enrollment ou ceux des autres aussi
+    @PreAuthorize("hasAnyRole('ADMIN','TEACHER') or @UserRepository.findById(#id).orElseThrow().getUser().getId() == authentication.principal.userId")
     @DeleteMapping("/{id}")
     public ResponseEntity<Void> deleteEnrollment(@PathVariable Long id, Authentication authentication) {
         Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);
@@ -161,7 +155,7 @@ public class EnrollmentRESTController {
     }
 
 
-    @PreAuthorize("hasRole('ADMIN')")
+    @PreAuthorize("hasRole('ADMIN') or @UserRepository.findById(#id).orElseThrow().getUser().getId() == authentication.principal.userId")
     @PatchMapping("/{id}")
     public ResponseEntity<EnrollmentDTO> updatePartOfEnrollment(@PathVariable Long id, @RequestBody Map<String, Object> updates) {
         Optional<Enrollment> enrollmentOpt = enrollmentRepository.findById(id);

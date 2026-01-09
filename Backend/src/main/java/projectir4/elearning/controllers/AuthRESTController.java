@@ -47,7 +47,7 @@ public class AuthRESTController {
 
     }
 
-    @PostMapping(value ="/signin", produces = "application/json")
+    @PostMapping(value ="/login", produces = "application/json")
     public ResponseEntity<?> authenticateUser(@Valid @RequestBody LoginForm loginRequest){
         Authentication authentication = daoAuthenticationProvider.authenticate(
                 new UsernamePasswordAuthenticationToken(loginRequest.getUsername(), loginRequest.getPassword()));
@@ -70,25 +70,23 @@ public class AuthRESTController {
         Set<String> strRoles = signUpRequest.getRole();
         Set<Role> roles = new HashSet<>();
 
-        for (String role : strRoles) {
-            if (role.equals("teacher") || role.equals("TEACHER")) {
 
+        strRoles.forEach(role -> {
+            if(role.equals("teacher")) {
                 Role teacherRole = roleRepository.findByName(RoleName.ROLE_TEACHER)
                         .orElseThrow(() -> new RuntimeException("Role Teacher not found."));
-                user = new Teacher();
-                user.getRoles().add(teacherRole);
-
-            } else if (role.equals("user") || role.equals("USER")){
-                Role studentRole = roleRepository.findByName(RoleName.ROLE_USER)
-                        .orElseThrow(() -> new RuntimeException("Role User not found."));
-                user = new Student();
-                user.getRoles().add(studentRole);
+                roles.add(teacherRole);
+            }else if(role.equals("user")) {
+                        Role studentRole = roleRepository.findByName(RoleName.ROLE_USER)
+                                .orElseThrow(() -> new RuntimeException("Role User not found."));
+                        roles.add(studentRole);
             }
-        }
+        });
 
-        user.setUsername(signUpRequest.getUsername());
-        user.setEmail(signUpRequest.getEmail());
-        user.setPassword(password);
+        //user.setUsername(signUpRequest.getUsername());
+        //user.setEmail(signUpRequest.getEmail());
+        //user.setPassword(password);
+        user.setRoles(roles);
 
         userRepository.save(user);
         return new ResponseEntity<> (new ResponseMessage("User registered successfully."), HttpStatus.OK);

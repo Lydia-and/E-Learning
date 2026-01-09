@@ -1,6 +1,9 @@
 package projectir4.elearning.security.jwt;
 
 
+import jakarta.servlet.http.HttpServletRequest;
+import org.springframework.security.core.userdetails.UserDetailsService;
+import projectir4.elearning.security.services.UserDetailsServiceImpl;
 import projectir4.elearning.security.services.UserPrinciple;
 import io.jsonwebtoken.*;
 import org.springframework.beans.factory.annotation.Value;
@@ -23,6 +26,8 @@ public class JwtProvider {
 
         return Jwts.builder()
                 .setSubject(userPrinciple.getUsername())
+                .claim("userId", ((UserPrinciple) userPrinciple).getId())
+                .claim("role", userPrinciple.getAuthorities().iterator().next().getAuthority())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date((new Date()).getTime() + jwtExpiration*1000))
                 .signWith(SignatureAlgorithm.HS512, jwtSecret)
@@ -46,12 +51,31 @@ public class JwtProvider {
         }
         return false;
     }
+
     public String getUserNameFromJwtToken(String token){
         return Jwts.parser()
                 .setSigningKey(jwtSecret)
                 .build()
                 .parseClaimsJws(token)
-                .getBody().getSubject();
+                .getBody()
+                .getSubject();
+    }
+
+    public Long getUserIdFromToken(String token) {
+        return Jwts.parser()
+                .setSigningKey(jwtSecret)
+                .build()
+                .parseClaimsJws(token)
+                .getBody()
+                .get("userId", Long.class);
+    }
+
+    public String getTokenFromRequest(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7);
+        }
+        return null;
     }
 }
 

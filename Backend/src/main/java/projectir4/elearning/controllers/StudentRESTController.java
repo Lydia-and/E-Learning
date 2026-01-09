@@ -62,7 +62,6 @@ public class StudentRESTController {
         return studentRepository.findById(id)
                 .map(student -> ResponseEntity.ok(studentMapper.toDTO(student)))
                 .orElse(new ResponseEntity<>(HttpStatus.NOT_FOUND));
-
     }
 
     @GetMapping("/me/enrollments")
@@ -88,7 +87,7 @@ public class StudentRESTController {
 
     @PreAuthorize("hasRole('ADMIN')")
     @RequestMapping(value="/{id}", method = RequestMethod.DELETE)
-    public ResponseEntity<Student> deleteStudent(@PathVariable("id") long id) {
+    public ResponseEntity<Student> deleteStudent(@PathVariable("id") Long id) {
         Optional<Student> student = studentRepository.findById(id);
         if(student.isEmpty()){
             System.out.println("Student not found !");
@@ -100,7 +99,7 @@ public class StudentRESTController {
 
     @PreAuthorize("hasAnyRole('ADMIN', 'TEACHER')")
     @RequestMapping(value ="/{id}", method = RequestMethod.PATCH)
-    public ResponseEntity<Student> updatePartOfStudent(@RequestBody Map<String, Object> updates, @PathVariable("id") long id ){
+    public ResponseEntity<Student> updatePartOfStudent(@RequestBody Map<String, Object> updates, @PathVariable("id") Long id ){
         Optional<Student> studentOpt = studentRepository.findById(id);
 
         if(studentOpt.isEmpty()){

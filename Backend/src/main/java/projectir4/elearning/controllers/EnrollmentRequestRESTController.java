@@ -82,12 +82,11 @@ public class EnrollmentRequestRESTController {
 
 
     @GetMapping("/teacher")
-    @PreAuthorize("hasRole('TEACHER')")
+    @PreAuthorize(" hasRole('ROLE_ADMIN') or authentication.principal.userId == #id")
     public List<EnrollmentRequestDTO> getRequestsForTeacher(
-            @AuthenticationPrincipal UserDetails userDetails) {
+            @AuthenticationPrincipal UserDetails userDetails,@RequestParam Long id) {
 
-        return enrollmentRequestRepository
-                .findByTeacherCourseTeacherUsername(userDetails.getUsername())
+        return enrollmentRequestRepository.findById(id)
                 .stream()
                 .map(enrollmentRequestMapper::toDTO)
                 .toList();

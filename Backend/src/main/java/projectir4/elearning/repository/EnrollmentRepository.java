@@ -12,9 +12,8 @@ import java.util.Optional;
 @Repository
 public interface EnrollmentRepository extends JpaRepository<Enrollment, Long> {
     Optional<Enrollment> findById(Long id);
-    Enrollment deleteById(long id);
     List<Enrollment> findAllByStudentId(Long studentId);
-    List<Enrollment> findAllBySubjectIdIn(List<Long> subjectIds);
+    List<Enrollment> findAllBySubjectIdIn(List<Long> subjectId);
     List<Enrollment> findByStudent(Student student);
     List<Enrollment> findBySubject(Subject subject);
     Optional<Enrollment> findByStudentIdAndSubjectId(Long studentId, Long subjectId);

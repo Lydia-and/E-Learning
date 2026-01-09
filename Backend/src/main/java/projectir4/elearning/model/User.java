@@ -20,10 +20,12 @@ public class User {
     private Long id;
 
     @NotBlank
+    @Column(unique = true, nullable = false)
     @Size(min=3, max = 50)
     private String username;
 
     @NotBlank
+    @Column(nullable = false)
     @Size(min=6, max = 100)
     private String password;
 

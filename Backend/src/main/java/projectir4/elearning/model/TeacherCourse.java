@@ -24,7 +24,7 @@ public class TeacherCourse {
 
     @JsonIgnoreProperties("teacherCourses")
     @ManyToOne(cascade = {CascadeType.PERSIST, CascadeType.MERGE})
-    @JoinColumn//(name = "subject_id")
+    @JoinColumn
     private Subject subject;
 
     @OneToMany(mappedBy = "teacherCourse", cascade = CascadeType.ALL, orphanRemoval = true)
